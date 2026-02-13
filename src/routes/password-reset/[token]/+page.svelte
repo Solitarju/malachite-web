@@ -7,6 +7,7 @@
     import Verified from '../../Components/Verified.svelte';
     import PasswordReset from '../../Components/PasswordReset.svelte';
 
+    let title = $state("Reset Password");
     let promise: Promise<Response> | undefined = $state();
 
     async function reset_password(password: string) {
@@ -15,9 +16,22 @@
             method: 'PATCH',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(password),
-        });  
+        });
+
+        promise.then(res => {
+            if (res.status == 204) { title = "Success!" }
+            else if (res.status == 404) { title = "Invalid Reset URL" }
+            else { title = "Internal Server Error" };
+        })
+        .catch(() => {
+            title = "Internal Server Error";
+        })
     }
 </script>
+
+<svelte:head>
+    <title>{title} - Malachite</title>
+</svelte:head>
 
 {#if promise}
     {#await promise}
@@ -25,7 +39,7 @@
     {:then res} 
         {#if res?.status == 204}
             <Verified text=
-                "Your password was successfuly reset! Return to the VN application to login.
+                "Your password was successfuly reset! Return to the Malachite Application to login.
                 Please note all existing sessions have been invalidated, requiring you to re-authenticate."
             />
         {:else if res?.status == 404}

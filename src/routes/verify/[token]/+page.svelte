@@ -7,21 +7,36 @@
     import Pending from '../../Components/Pending.svelte';
     import Verified from '../../Components/Verified.svelte';
 
+    let title = $state("Verifying Your Email");
     let promise: Promise<Response> = $state(new Promise(() => {}));
 
     // fetch promise is set in onMount so that the browser doesn't prefetch to see if fetch is permitted with CORS, dont change this.
     onMount(() => {
         promise = fetch(`${DOMAIN}/verify/${page.params.token}`, { method: 'DELETE' });
+
+        // update page title
+        promise.then(res => {
+            if (res.status == 204) { title = "Account Verified" }
+            else if (res.status == 404) { title = "Verification Token Invalid" }
+            else { title = "Internal Server Error" };
+        })
+        .catch(() => {
+            title = "Internal Server Error";
+        });
     })
 </script>
 
-{#await promise }
+<svelte:head>
+    <title> - Malachite</title>
+</svelte:head>
+
+{#await promise}
 	<Pending text="Verifying your email"/>
 {:then res} 
 	{#if res?.status == 204}
         <Verified text=
             "Your account and email are now verified!
-            Return to the VN Application to login."
+            Return to the Malachite Application to login."
         />
     {:else if res?.status == 404}
         <NotFound>
