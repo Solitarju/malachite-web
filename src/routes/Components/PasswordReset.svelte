@@ -140,11 +140,3 @@
         {/if}
     </div>
 </div>
-
-<style>
-    @import "tailwindcss";
-
-    @theme {
-        --color-mint: #5bfebf;
-    }
-</style>
